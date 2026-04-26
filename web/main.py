@@ -8,8 +8,8 @@ import uuid
 import os
 from fastapi import Form
 from dotenv import load_dotenv
-from . import models, schemas, auth
-from .database import get_db, engine
+from .database import get_db
+from . import models
 
 
 # Load environment variables
