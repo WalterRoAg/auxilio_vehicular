@@ -3,14 +3,12 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text
 from fastapi.middleware.cors import CORSMiddleware
-import models, auth
+from dotenv import load_dotenv
 import uuid
 import os
-from fastapi import Form
-from dotenv import load_dotenv
-from .database import get_db
-from . import models
 
+from web.database import get_db, engine
+from web import models, auth
 
 # Load environment variables
 load_dotenv()
