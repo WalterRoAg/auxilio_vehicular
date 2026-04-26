@@ -1,0 +1,60 @@
+<div class="dashboard-container">
+
+  <div class="header">
+    <h1>Panel Taller Mecánico</h1>
+    <p>Monitoreo en tiempo real de incidentes</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-box">
+    Cargando incidentes...
+  </div>
+
+  <div *ngIf="!loading && incidentes.length === 0" class="empty-box">
+    No hay solicitudes pendientes
+  </div>
+
+  <div class="grid-cards">
+
+    <div class="card-incident" *ngFor="let item of incidentes">
+
+      <div class="card-top">
+        <span class="badge normal">Pendiente</span>
+        <span class="estado">{{ item.status }}</span>
+      </div>
+
+      <h3>Auxilio Vehicular</h3>
+
+      <p class="descripcion">
+        {{ item.descripcion_ia || 'Sin descripción' }}
+      </p>
+
+      <p>
+        <strong>Ubicación:</strong>
+        {{ item.lat }}, {{ item.lng }}
+      </p>
+
+      <p>
+        <strong>Fecha:</strong>
+        {{ item.fecha_creacion || 'Sin fecha' }}
+      </p>
+
+      <div class="inputs" *ngIf="!ofertasEnviadas.includes(item.id)">
+        <input #precio type="number" placeholder="Precio Bs." />
+        <input #tiempo type="number" placeholder="Minutos" />
+
+        <button
+          (click)="aceptarSolicitud(item, precio.value, tiempo.value)"
+          style="background: green; color: white;">
+          Aceptar Solicitud
+        </button>
+      </div>
+
+      <div *ngIf="ofertasEnviadas.includes(item.id)" class="enviado">
+        Oferta enviada correctamente
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

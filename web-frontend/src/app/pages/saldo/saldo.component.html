@@ -1,0 +1,41 @@
+<p>saldo works!</p>
+<div class="saldo-page">
+  <h1>Saldo del Taller</h1>
+  <p>Resumen de ganancias y comisión de plataforma.</p>
+
+  <div *ngIf="loading" class="card">
+    Cargando saldo...
+  </div>
+
+  <div *ngIf="!loading" class="cards">
+    <div class="card main">
+      <span>Saldo disponible</span>
+      <h2>Bs. {{ saldo | number:'1.2-2' }}</h2>
+    </div>
+
+    <div class="card">
+      <span>Total servicios</span>
+      <h3>Bs. {{ totalServicios | number:'1.2-2' }}</h3>
+    </div>
+
+    <div class="card">
+      <span>Comisión plataforma 10%</span>
+      <h3>Bs. {{ comision | number:'1.2-2' }}</h3>
+    </div>
+  </div>
+
+  <div class="card recarga-card">
+    <h2>Recargar saldo</h2>
+    <p>Ingresa un monto para aumentar el saldo disponible del taller.</p>
+
+    <input
+      type="number"
+      [(ngModel)]="montoRecarga"
+      placeholder="Monto Bs."
+    />
+
+    <button (click)="recargarSaldo()">
+      Recargar saldo
+    </button>
+  </div>
+</div>

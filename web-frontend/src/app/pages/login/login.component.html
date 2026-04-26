@@ -1,0 +1,31 @@
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="badge">🚗 forma parte con nosotoros en:</div>
+    <h1>Auxilio Vehicular</h1>
+    <p>Gestiona solicitudes, envía ofertas, administra tus servicios y controla tus ingresos desde un solo lugar.</p>
+
+    <div class="features">
+      <span>🚨 Solicitudes en tiempo real</span>
+      <span>🛠 Servicios personalizados</span>
+      <span>💰 Comisión automática 10%</span>
+    </div>
+  </div>
+
+  <div class="auth-card">
+    <h2>Iniciar sesión</h2>
+    <p>Accede como taller mecánico</p>
+
+    <label>Correo electrónico</label>
+    <input [(ngModel)]="email" type="email" placeholder="taller@email.com">
+
+    <label>Contraseña</label>
+    <input [(ngModel)]="password" type="password" placeholder="••••••••">
+
+    <button (click)="login()">Ingresar al panel</button>
+
+    <div class="register-link">
+      ¿No tienes cuenta?
+      <a routerLink="/registro-taller">Registrar taller</a>
+    </div>
+  </div>
+</div>

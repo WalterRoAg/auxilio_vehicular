@@ -1,0 +1,55 @@
+<div class="page">
+  <h1>Encargados del Taller</h1>
+  <p>Gestiona los empleados que pueden ingresar al panel del mismo taller.</p>
+
+  <div *ngIf="loading" class="card">
+    Cargando información...
+  </div>
+
+  <div *ngIf="!loading && !esDueno" class="card bloqueado">
+    <h2>Acceso restringido</h2>
+    <p>Solo el dueño del taller puede registrar y ver encargados.</p>
+  </div>
+
+  <div *ngIf="!loading && esDueno" class="grid">
+    <div class="card">
+      <h2>Registrar nuevo encargado</h2>
+
+      <label>Nombre del encargado</label>
+      <input [(ngModel)]="nombre" placeholder="Ej: Juan Pérez">
+
+      <label>Correo electrónico</label>
+      <input [(ngModel)]="email" type="email" placeholder="empleado@email.com">
+
+      <label>Teléfono</label>
+      <input [(ngModel)]="telefono" placeholder="70000000">
+
+      <label>Contraseña</label>
+      <input [(ngModel)]="password" type="password" placeholder="Contraseña">
+
+      <button (click)="registrarEncargado()" [disabled]="guardando">
+        {{ guardando ? 'Registrando...' : 'Registrar encargado' }}
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>Encargados registrados</h2>
+
+      <div *ngIf="encargados.length === 0" class="empty">
+        No hay encargados registrados.
+      </div>
+
+      <div class="empleado" *ngFor="let e of encargados">
+        <div class="avatar">
+          {{ e.nombre ? e.nombre.charAt(0).toUpperCase() : 'E' }}
+        </div>
+
+        <div>
+          <strong>{{ e.nombre }}</strong>
+          <p>{{ e.email }}</p>
+          <span>{{ e.telefono || 'Sin teléfono' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

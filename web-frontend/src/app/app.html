@@ -1,0 +1,51 @@
+<div class="app-layout" *ngIf="mostrarLayout(); else authPage">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">AV</div>
+      <div>
+        <h2>Auxilio</h2>
+        <span>Panel Taller</span>
+      </div>
+    </div>
+
+  <nav>
+  <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    🚨 Solicitudes
+  </a>
+
+  <a routerLink="/solicitudes-atendiendo" routerLinkActive="active">
+    🚗 En atención
+  </a>
+
+  <a routerLink="/servicios" routerLinkActive="active">
+    🛠 Servicios
+  </a>
+
+  <a routerLink="/encargados" routerLinkActive="active">
+    👤 Encargados
+  </a>
+
+  <a routerLink="/perfil-taller" routerLinkActive="active">
+    🏪 Perfil Taller
+  </a>
+
+  <a routerLink="/saldo" routerLinkActive="active">
+    💰 Saldo
+  </a>
+</nav>
+
+    <button class="logout" (click)="cerrarSesion()">
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>
+
+<ng-template #authPage>
+  <router-outlet></router-outlet>
+</ng-template>

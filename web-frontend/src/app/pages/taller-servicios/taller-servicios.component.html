@@ -1,0 +1,8 @@
+<h2>Servicios del Taller</h2>
+
+<div *ngFor="let s of servicios">
+  <input type="checkbox" [(ngModel)]="s.checked">
+  {{ s.nombre }}
+</div>
+
+<button (click)="guardar()">Guardar</button>

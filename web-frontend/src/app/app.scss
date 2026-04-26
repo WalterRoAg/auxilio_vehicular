@@ -1,0 +1,93 @@
+* {
+  box-sizing: border-box;
+}
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+  width: 270px;
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(180deg, #111827, #1e1b4b, #7f1d1d);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 8px 0 30px rgba(0, 0, 0, 0.18);
+}
+
+.brand {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 36px;
+}
+
+.logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ef4444, #f97316, #facc15);
+  font-weight: 900;
+  font-size: 20px;
+  color: white;
+}
+
+.brand h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.brand span {
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 14px;
+  transition: 0.2s;
+  font-weight: 600;
+}
+
+nav a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(4px);
+}
+
+nav a.active {
+  background: white;
+  color: #b91c1c;
+  box-shadow: 0 8px 20px rgba(255,255,255,.18);
+}
+
+.logout {
+  margin-top: auto;
+  border: none;
+  padding: 14px;
+  border-radius: 14px;
+  background: #ef4444;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.content {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+}

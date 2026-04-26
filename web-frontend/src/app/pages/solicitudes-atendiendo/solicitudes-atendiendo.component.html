@@ -1,0 +1,45 @@
+<div class="page">
+  <h1>Solicitudes en atención</h1>
+  <p>Servicios que actualmente están siendo atendidos por este taller.</p>
+
+  <div *ngIf="loading" class="card">
+    Cargando solicitudes...
+  </div>
+
+  <div *ngIf="!loading && solicitudes.length === 0" class="card empty">
+    No tienes solicitudes en atención.
+  </div>
+
+  <div class="grid">
+    <div class="card service-card" *ngFor="let s of solicitudes">
+
+      <img
+        *ngIf="s.imagen_url"
+        [src]="s.imagen_url"
+        class="foto-incidente"
+        alt="Foto del incidente"
+      >
+
+      <div *ngIf="!s.imagen_url" class="sin-foto">
+        Sin fotografía
+      </div>
+
+      <div class="top">
+        <span class="badge">En camino</span>
+        <strong>Bs. {{ s.precio }}</strong>
+      </div>
+
+      <h2>Auxilio vehicular</h2>
+      <p>{{ s.descripcion }}</p>
+
+      <div class="info">
+        <span>⏱ {{ s.tiempo }} min</span>
+        <span>📍 {{ s.lat }}, {{ s.lng }}</span>
+      </div>
+
+      <button class="btn-finalizar" (click)="finalizarServicio(s.id)">
+        ✅ Finalizar servicio
+      </button>
+    </div>
+  </div>
+</div>

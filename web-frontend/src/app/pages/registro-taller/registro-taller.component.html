@@ -1,0 +1,19 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Registro de Taller</h1>
+    <p>Crea tu cuenta para recibir solicitudes de auxilio vehicular.</p>
+
+    <input [(ngModel)]="nombre" placeholder="Nombre del encargado">
+    <input [(ngModel)]="email" type="email" placeholder="Correo electrónico">
+    <input [(ngModel)]="telefono" placeholder="Teléfono">
+    <input [(ngModel)]="password" type="password" placeholder="Contraseña">
+
+    <input [(ngModel)]="nombre_taller" placeholder="Nombre del taller">
+    <input [(ngModel)]="especialidad" placeholder="Especialidad">
+    <input [(ngModel)]="direccion" placeholder="Dirección">
+
+    <button (click)="registrar()">Registrarme</button>
+
+    <a routerLink="/">Ya tengo cuenta</a>
+  </div>
+</div>

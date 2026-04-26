@@ -1,0 +1,24 @@
+<div class="container mt-4">
+  <h2>🚨 Auxilios Pendientes</h2>
+  <div class="row">
+    <div class="col-md-4" *ngFor="let inc of incidentes">
+      <div class="card mb-3 border-{{ inc.prioridad == 'Alta' ? 'danger' : 'warning' }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ inc.categoria_ia }}</h5>
+          <span class="badge bg-danger mb-2">{{ inc.prioridad }}</span>
+          <p class="card-text text-muted italic">"{{ inc.descripcion_ia }}"</p>
+          
+          <hr>
+          <h6>Tu Oferta:</h6>
+          <input type="number" class="form-control mb-2" placeholder="Precio (BS)" #precio>
+          <input type="number" class="form-control mb-2" placeholder="Tiempo (min)" #tiempo>
+          
+          <button class="btn btn-primary w-100" 
+                  (click)="ofertar(inc.id, precio.value, tiempo.value)">
+            Enviar Propuesta
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

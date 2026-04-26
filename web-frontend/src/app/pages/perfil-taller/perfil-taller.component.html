@@ -1,0 +1,88 @@
+<p>perfil-taller works!</p>
+<div class="perfil-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Perfil del Taller</h1>
+      <p>Administra la información pública que verá el cliente.</p>
+    </div>
+
+    <div class="status-card" [class.online]="taller.disponible" [class.offline]="!taller.disponible">
+      <span>{{ taller.disponible ? 'Disponible' : 'No disponible' }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="info-box">
+    Cargando perfil...
+  </div>
+
+  <div *ngIf="error" class="alert error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="exito" class="alert success">
+    {{ exito }}
+  </div>
+
+  <div *ngIf="!loading" class="perfil-grid">
+
+    <section class="card form-card">
+      <h2>Información del taller</h2>
+
+      <label>Nombre del taller *</label>
+      <input [(ngModel)]="taller.nombre_taller" placeholder="Ej: Taller Central">
+
+      <label>Especialidad</label>
+      <input [(ngModel)]="taller.especialidad" placeholder="Ej: Mecánica general">
+
+      <label>Dirección *</label>
+      <textarea [(ngModel)]="taller.direccion" rows="3" placeholder="Ej: Av. Principal #123"></textarea>
+
+      <div class="two-cols">
+        <div>
+          <label>Latitud</label>
+          <input [(ngModel)]="taller.latitud" type="number" placeholder="-17.78">
+        </div>
+
+        <div>
+          <label>Longitud</label>
+          <input [(ngModel)]="taller.longitud" type="number" placeholder="-63.18">
+        </div>
+      </div>
+
+      <label class="switch-row">
+        <input type="checkbox" [(ngModel)]="taller.disponible">
+        <span>Disponible para recibir solicitudes</span>
+      </label>
+
+      <button (click)="guardar()" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+    </section>
+
+    <section class="card preview-card">
+      <div class="avatar">
+        {{ taller.nombre_taller ? taller.nombre_taller.charAt(0).toUpperCase() : 'T' }}
+      </div>
+
+      <h2>{{ taller.nombre_taller || 'Nombre del taller' }}</h2>
+      <p>{{ taller.especialidad || 'Mecánica general' }}</p>
+
+      <div class="preview-item">
+        <strong>Dirección</strong>
+        <span>{{ taller.direccion || 'Sin dirección registrada' }}</span>
+      </div>
+
+      <div class="preview-item">
+        <strong>Ubicación</strong>
+        <span>{{ taller.latitud || '---' }}, {{ taller.longitud || '---' }}</span>
+      </div>
+
+      <div class="rating">
+        ⭐ {{ taller.rating || 5 }} / 5.0
+      </div>
+    </section>
+
+  </div>
+
+</div>

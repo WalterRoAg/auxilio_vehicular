@@ -1,0 +1,25 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Incidente } from '../models/incidente.model';
+import { Oferta } from '../models/oferta.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class IncidentService {
+  private API_URL = 'http://localhost:8000/api';
+
+  constructor(private http: HttpClient) {}
+
+  getIncidentesPendientes(): Observable<Incidente[]> {
+    return this.http.get<Incidente[]>(`${this.API_URL}/incidentes/pendientes`);
+  }
+
+  enviarOferta(oferta: Oferta): Observable<any> {
+    return this.http.post(`${this.API_URL}/taller/enviar-oferta`, oferta);
+  }
+  aceptarSolicitud(data: any) {
+  return this.http.post(`${this.API_URL}/taller/aceptar-solicitud`, data);
+  }
+}

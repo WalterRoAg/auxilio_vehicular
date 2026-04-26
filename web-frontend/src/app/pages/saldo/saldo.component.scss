@@ -1,0 +1,42 @@
+.saldo-page h1 {
+  margin: 0;
+  font-size: 34px;
+}
+
+.saldo-page p {
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 26px;
+  border-radius: 22px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.08);
+}
+
+.card span {
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.card h2 {
+  font-size: 42px;
+  margin: 12px 0 0;
+  color: #16a34a;
+}
+
+.card h3 {
+  font-size: 28px;
+  margin: 12px 0 0;
+}
+
+.main {
+  background: linear-gradient(135deg, #ecfdf5, #ffffff);
+}

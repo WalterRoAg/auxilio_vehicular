@@ -1,0 +1,86 @@
+.page h1 {
+  margin: 0;
+  font-size: 34px;
+}
+
+.page p {
+  color: #6b7280;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-top: 22px;
+}
+
+.card {
+  background: white;
+  padding: 26px;
+  border-radius: 22px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.08);
+}
+
+label {
+  display: block;
+  margin: 14px 0 6px;
+  font-weight: 800;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  border-radius: 14px;
+  border: 1px solid #d1d5db;
+}
+
+button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: #2563eb;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .6;
+}
+
+.empleado {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background: #f9fafb;
+  padding: 14px;
+  border-radius: 16px;
+  margin-top: 12px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #2563eb, #16a34a);
+  color: white;
+  font-weight: 900;
+}
+
+.empleado p {
+  margin: 2px 0;
+}
+
+.empleado span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.bloqueado {
+  margin-top: 22px;
+  border-left: 6px solid #ef4444;
+}
