@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy import Column, String, DateTime, ForeignKey, Integer, Float, Boolean, Text
 from sqlalchemy.dialects.postgresql import UUID
-from .database import Base
+from database import Base
 import datetime
 
 # --- USUARIOS (CU1, CU2, CU4, CU16) ---
