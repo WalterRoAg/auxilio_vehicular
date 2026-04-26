@@ -541,33 +541,56 @@ def obtener_ofertas_incidente(incidente_id: str, db: Session = Depends(get_db)):
 
 @app.post("/api/registrar-taller")
 def registrar_taller(data: dict, db: Session = Depends(get_db)):
+    try:
+        email = data["email"].strip().lower()
 
-    nuevo_user = models.User(
-        id=uuid.uuid4(),
-        email=data["email"],
-        password=auth.get_password_hash(data["password"]),
-        role="taller",
-        full_name=data["nombre"],
-        phone=data.get("telefono", "")
-    )
+        existe = db.query(models.User).filter(models.User.email == email).first()
+        if existe:
+            raise HTTPException(status_code=400, detail="El correo ya existe")
 
-    db.add(nuevo_user)
-    db.commit()
-    db.refresh(nuevo_user)
+        nuevo_user = models.User(
+            id=uuid.uuid4(),
+            email=email,
+            password=auth.get_password_hash(data["password"]),
+            role="taller",
+            full_name=data["nombre"],
+            phone=data.get("telefono", "")
+        )
 
-    nuevo_taller = models.Taller(
-        id=uuid.uuid4(),
-        usuario_id=nuevo_user.id,
-        nombre_taller=data["nombre_taller"],
-        especialidad=data.get("especialidad", ""),
-        direccion=data.get("direccion", "")
-    )
+        db.add(nuevo_user)
+        db.commit()
+        db.refresh(nuevo_user)
 
-    db.add(nuevo_taller)
-    db.commit()
+        nuevo_taller = models.Taller(
+            id=uuid.uuid4(),
+            usuario_id=nuevo_user.id,
+            nombre_taller=data["nombre_taller"],
+            especialidad=data.get("especialidad", ""),
+            direccion=data.get("direccion", ""),
+            latitud=data.get("latitud", -17.7833),
+            longitud=data.get("longitud", -63.1821),
+            rating=0,
+            disponible=True,
+            saldo=0
+        )
 
-    return {"status": "ok"}
+        db.add(nuevo_taller)
+        db.commit()
+        db.refresh(nuevo_taller)
 
+        return {
+            "status": "ok",
+            "user_id": str(nuevo_user.id),
+            "taller_id": str(nuevo_taller.id)
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        db.rollback()
+        print("ERROR REGISTRAR TALLER:", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/servicios")
 def obtener_servicios(db: Session = Depends(get_db)):
