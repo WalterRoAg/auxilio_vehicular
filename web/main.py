@@ -1084,7 +1084,8 @@ def solicitudes_atendiendo(taller_id: str, db: Session = Depends(get_db)):
 
         imagen_url = None
         if imagen:
-            imagen_url = f"http://localhost:8000/{imagen.ruta_imagen.replace('\\', '/')}"
+            base_url = os.getenv("BASE_URL", "http://localhost:8000")
+            imagen_url = f"{base_url}/{imagen.ruta_imagen.replace('\\', '/')}"
 
         resultado.append({
             "id": str(inc.id),
