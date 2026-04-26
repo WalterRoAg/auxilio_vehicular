@@ -4,14 +4,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, text
 from fastapi.middleware.cors import CORSMiddleware
 import models, auth
-from database import get_db, engine
 import uuid
-import models
-import auth
 import os
 from fastapi import Form
 from dotenv import load_dotenv
-import schemas
+from . import models, schemas, auth
+from .database import get_db, engine
+
 
 # Load environment variables
 load_dotenv()
