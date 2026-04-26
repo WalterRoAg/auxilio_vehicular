@@ -23,7 +23,7 @@ export class RegistroTallerComponent {
   constructor(private http: HttpClient, private router: Router) {}
 
   registrar() {
-    this.http.post('http://localhost:8000/api/registrar-taller', {
+    this.http.post('https://auxilio-vehicular.onrender.com/api/registrar-taller', {
       nombre: this.nombre,
       email: this.email,
       telefono: this.telefono,
@@ -37,9 +37,9 @@ export class RegistroTallerComponent {
         this.router.navigate(['/']);
       },
       error: (err) => {
-        console.error(err);
-        alert('Error al registrar taller');
-      }
+  console.error('ERROR REGISTRO TALLER:', err);
+  alert(err.error?.detail || 'Error al registrar taller');
+}
     });
   }
 }
