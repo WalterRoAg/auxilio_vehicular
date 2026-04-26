@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-taller-servicios',
@@ -19,7 +20,7 @@ export class TallerServiciosComponent implements OnInit {
   ngOnInit() {
     this.tallerId = localStorage.getItem('user_id') || '';
 
-    this.http.get<any[]>('http://localhost:8000/api/servicios')
+    this.http.get<any[]>(`${environment.apiUrl}/servicios`)
       .subscribe(data => {
         this.servicios = data.map(s => ({
           ...s,
@@ -33,7 +34,7 @@ export class TallerServiciosComponent implements OnInit {
       .filter(s => s.checked)
       .map(s => s.id);
 
-    this.http.post('http://localhost:8000/api/taller/servicios', {
+    this.http.post(`${environment.apiUrl}/taller/servicios`, {
       taller_id: this.tallerId,
       servicios: seleccionados
     }).subscribe(() => {

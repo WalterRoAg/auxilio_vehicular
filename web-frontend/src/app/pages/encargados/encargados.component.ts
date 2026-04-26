@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-encargados',
@@ -21,7 +22,7 @@ export class EncargadosComponent implements OnInit {
   loading = true;
   guardando = false;
 
-  private API_URL = 'http://localhost:8000/api';
+  private API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

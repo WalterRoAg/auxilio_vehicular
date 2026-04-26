@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-registro-taller',
@@ -23,7 +24,7 @@ export class RegistroTallerComponent {
   constructor(private http: HttpClient, private router: Router) {}
 
   registrar() {
-    this.http.post('https://auxilio-vehicular.onrender.com/api/registrar-taller', {
+    this.http.post(`${environment.apiUrl}/registrar-taller`, {
       nombre: this.nombre,
       email: this.email,
       telefono: this.telefono,

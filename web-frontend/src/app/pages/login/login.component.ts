@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +19,7 @@ export class LoginComponent {
   constructor(private http: HttpClient, private router: Router) {}
 
   login(): void {
-    this.http.post<any>('https://auxilio-vehicular.onrender.com', {
+    this.http.post<any>(`${environment.apiUrl}/login-web`, {
       email: this.email,
       password: this.password
     }).subscribe({

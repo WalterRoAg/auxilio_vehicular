@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Incidente } from '../models/incidente.model';
 import { Oferta } from '../models/oferta.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class IncidentService {
-  private API_URL = 'http://localhost:8000/api';
+  private API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

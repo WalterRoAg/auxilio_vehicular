@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-saldo',
@@ -16,7 +17,7 @@ export class SaldoComponent implements OnInit {
   comision = 0;
   loading = true;
 
-  private API_URL = 'http://localhost:8000/api';
+  private API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -36,26 +37,16 @@ export class SaldoComponent implements OnInit {
         }
       });
   }
-  montoRecarga = 0;
 
-recargarSaldo(): void {
-  const tallerId = localStorage.getItem('taller_id');
+  recargarSaldo(): void {
+    const tallerId = localStorage.getItem('taller_id');
 
-  if (!tallerId || this.montoRecarga <= 0) {
-    alert('Ingresa un monto válido');
-    return;
+    if (!tallerId) {
+      alert('ID de taller no encontrado');
+      return;
+    }
+
+    // Aquí iría la lógica de recarga
+    alert('Funcionalidad de recarga pendiente de implementar');
   }
-
-  this.http.post<any>(`${this.API_URL}/taller/recargar-saldo`, {
-    taller_id: tallerId,
-    monto: this.montoRecarga
-  }).subscribe({
-    next: (res) => {
-      this.saldo = res.saldo || 0;
-      this.montoRecarga = 0;
-      alert('Saldo recargado correctamente');
-    },
-    error: () => alert('Error al recargar saldo')
-  });
-}
 }

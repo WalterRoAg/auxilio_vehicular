@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-solicitudes-atendiendo',
@@ -13,7 +14,7 @@ export class SolicitudesAtendiendoComponent implements OnInit, OnDestroy {
   solicitudes: any[] = [];
   loading = true;
 
-  private API_URL = 'http://localhost:8000/api';
+  private API_URL = environment.apiUrl;
   intervalId: any;
 
   constructor(private http: HttpClient) {}

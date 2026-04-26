@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-perfil-taller',
@@ -11,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./perfil-taller.component.scss']
 })
 export class PerfilTallerComponent implements OnInit {
-  private API_URL = 'http://localhost:8000/api';
+  private API_URL = environment.apiUrl;
 
   loading = true;
   guardando = false;
