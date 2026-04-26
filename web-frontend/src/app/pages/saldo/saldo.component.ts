@@ -17,6 +17,8 @@ export class SaldoComponent implements OnInit {
   comision = 0;
   loading = true;
 
+  montoRecarga: number = 0;
+  
   private API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
