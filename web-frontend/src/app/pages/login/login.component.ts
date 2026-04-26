@@ -18,25 +18,23 @@ export class LoginComponent {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  login(): void {
-    this.http.post<any>(`${environment.apiUrl}/login-web`, {
-      email: this.email,
-      password: this.password
-    }).subscribe({
-      next: (res) => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('user_id', res.user_id);
-        localStorage.setItem('role', res.role);
+ login() {
+  this.http.post<any>('https://auxilio-vehicular.onrender.com/api/login-web', {
+    email: this.email,
+    password: this.password
+  }).subscribe({
+    next: (res) => {
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user_id', res.user_id);
+      localStorage.setItem('taller_id', res.taller_id);
+      localStorage.setItem('role', res.role);
 
-        if (res.taller_id) {
-          localStorage.setItem('taller_id', res.taller_id);
-        }
-
-        this.router.navigate(['/dashboard']);
-      },
-      error: () => {
-        alert('Credenciales incorrectas');
-      }
-    });
-  }
+      this.router.navigate(['/dashboard']);
+    },
+    error: (err) => {
+      console.error('ERROR LOGIN:', err);
+      alert(err.error?.detail || 'Credenciales incorrectas');
+    }
+  });
+}
 }
