@@ -1251,7 +1251,7 @@ def solicitudes_atendiendo(taller_id: str, db: Session = Depends(get_db)):
 
         imagen_url = None
         if imagen:
-            base_url = os.getenv("BASE_URL=https://auxilio-vehicular.onrender.com")
+            base_url = os.getenv("BASE_URL", "https://auxilio-vehicular.onrender.com")
             imagen_url = f"{base_url}/{imagen.ruta_imagen.replace('\\', '/')}"
 
         resultado.append({
