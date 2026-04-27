@@ -41,14 +41,31 @@ export class SaldoComponent implements OnInit {
   }
 
   recargarSaldo(): void {
-    const tallerId = localStorage.getItem('taller_id');
+  const tallerId = localStorage.getItem('taller_id');
 
-    if (!tallerId) {
-      alert('ID de taller no encontrado');
-      return;
-    }
-
-    // Aquí iría la lógica de recarga
-    alert('Funcionalidad de recarga pendiente de implementar');
+  if (!tallerId) {
+    alert('ID de taller no encontrado');
+    return;
   }
+
+  if (!this.montoRecarga || this.montoRecarga <= 0) {
+    alert('Ingresa un monto válido');
+    return;
+  }
+
+  this.http.post<any>(`${this.API_URL}/taller/recargar-saldo`, {
+    taller_id: tallerId,
+    monto: this.montoRecarga
+  }).subscribe({
+    next: (res) => {
+      this.saldo = res.saldo || 0;
+      this.montoRecarga = 0;
+      alert('Saldo recargado correctamente');
+    },
+    error: (err) => {
+      console.error('ERROR RECARGA:', err);
+      alert(err.error?.detail || 'Error al recargar saldo');
+    }
+  });
+}
 }
