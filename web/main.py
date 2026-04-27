@@ -1270,30 +1270,24 @@ def solicitudes_atendiendo(taller_id: str, db: Session = Depends(get_db)):
 
 @app.get("/api/taller/encargados/{taller_id}")
 def listar_encargados(taller_id: str, db: Session = Depends(get_db)):
-    try:
-        filas = db.execute(
-            text("""
-                SELECT u.id, u.full_name, u.email, u.phone
-                FROM taller_encargados te
-                JOIN users u ON u.id = te.user_id
-                WHERE te.taller_id = :taller_id
-            """),
-            {"taller_id": taller_id}
-        ).fetchall()
+    filas = db.execute(
+        text("""
+            SELECT u.id, u.full_name, u.email, u.phone
+            FROM taller_encargados te
+            JOIN users u ON u.id = te.user_id
+            WHERE te.taller_id = :taller_id
+        """),
+        {"taller_id": taller_id}
+    ).fetchall()
 
-        return [
-            {
-                "id": str(f[0]),
-                "nombre": f[1],
-                "email": f[2],
-                "telefono": f[3]
-            }
-            for f in filas
-        ]
-    
-    except Exception as e:
-        print(f"ERROR LISTAR ENCARGADOS: {e}")
-        raise HTTPException(status_code=500, detail="Error al listar encargados")
+    return [
+        {
+            "id": str(f[0]),
+            "nombre": f[1],
+            "email": f[2],
+            "telefono": f[3]
+        }
+        for f in filas
     ]
 
 @app.get("/api/taller/servicios/{taller_id}")
