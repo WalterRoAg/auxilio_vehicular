@@ -18,16 +18,23 @@ export class TallerServiciosComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.tallerId = localStorage.getItem('user_id') || '';
+  this.tallerId = localStorage.getItem('taller_id') || '';
 
-    this.http.get<any[]>(`${environment.apiUrl}/servicios`)
-      .subscribe(data => {
+  this.http.get<any[]>(`${environment.apiUrl}/servicios`)
+    .subscribe({
+      next: (data) => {
+        console.log('SERVICIOS:', data);
         this.servicios = data.map(s => ({
           ...s,
           checked: false
         }));
-      });
-  }
+      },
+      error: (err) => {
+        console.error('ERROR SERVICIOS:', err);
+        alert(err.error?.detail || 'Error cargando servicios');
+      }
+    });
+ }
 
   guardar() {
     const seleccionados = this.servicios
