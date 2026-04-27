@@ -1279,3 +1279,16 @@ def listar_encargados(taller_id: str, db: Session = Depends(get_db)):
         }
         for f in filas
     ]
+
+@app.get("/api/taller/servicios/{taller_id}")
+def obtener_servicios_taller(taller_id: str, db: Session = Depends(get_db)):
+    filas = db.execute(
+        text("""
+            SELECT servicio_id
+            FROM taller_servicios
+            WHERE taller_id = :taller_id
+        """),
+        {"taller_id": taller_id}
+    ).fetchall()
+
+    return [str(f[0]) for f in filas]

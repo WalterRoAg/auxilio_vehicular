@@ -22,19 +22,29 @@ export class TallerServiciosComponent implements OnInit {
 
   this.http.get<any[]>(`${environment.apiUrl}/servicios`)
     .subscribe({
-      next: (data) => {
-        console.log('SERVICIOS:', data);
-        this.servicios = data.map(s => ({
-          ...s,
-          checked: false
-        }));
+      next: (servicios) => {
+        this.http.get<string[]>(`${environment.apiUrl}/taller/servicios/${this.tallerId}`)
+          .subscribe({
+            next: (seleccionados) => {
+              this.servicios = servicios.map(s => ({
+                ...s,
+                checked: seleccionados.includes(String(s.id))
+              }));
+            },
+            error: () => {
+              this.servicios = servicios.map(s => ({
+                ...s,
+                checked: false
+              }));
+            }
+          });
       },
       error: (err) => {
-        console.error('ERROR SERVICIOS:', err);
+        console.error('ERROR CARGANDO SERVICIOS:', err);
         alert(err.error?.detail || 'Error cargando servicios');
       }
     });
- }
+}
 
   guardar() {
     const seleccionados = this.servicios

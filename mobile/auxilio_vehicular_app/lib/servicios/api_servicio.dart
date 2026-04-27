@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiServicio {
-  final String urlBase = "https://auxilio-vehicular.onrender.com";
+  final String urlBase = "https://auxilio-vehicular.onrender.com/api";
 
   // LOGIN MOVIL
   Future<Map<String, dynamic>?> login(String email, String password) async {
