@@ -55,6 +55,32 @@ load_dotenv()
 # Crear tablas en la DB
 models.Base.metadata.create_all(bind=engine)
 
+with engine.begin() as conn:
+    conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS servicios (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            nombre VARCHAR(100) UNIQUE NOT NULL
+        )
+    """))
+
+    conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS taller_servicios (
+            taller_id UUID NOT NULL,
+            servicio_id UUID NOT NULL,
+            PRIMARY KEY (taller_id, servicio_id)
+        )
+    """))
+
+    conn.execute(text("""
+        ALTER TABLE incidentes 
+        ADD COLUMN IF NOT EXISTS clasificacion VARCHAR(100)
+    """))
+
+    conn.execute(text("""
+        ALTER TABLE incidentes 
+        ADD COLUMN IF NOT EXISTS prioridad VARCHAR(50)
+    """))
+
 app = FastAPI(title="Auxilio Vehicular API")
 
 # Configuración de CORS
