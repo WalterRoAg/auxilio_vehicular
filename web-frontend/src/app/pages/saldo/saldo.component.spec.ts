@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Saldo } from './saldo';
+import { SaldoComponent } from './saldo.component';
 
 describe('Saldo', () => {
-  let component: Saldo;
-  let fixture: ComponentFixture<Saldo>;
+  let component: SaldoComponent;
+  let fixture: ComponentFixture<SaldoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Saldo],
+      imports: [SaldoComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Saldo);
+    fixture = TestBed.createComponent(SaldoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(component).toBeTruthy(); 
   });
 });

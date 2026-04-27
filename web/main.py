@@ -12,6 +12,42 @@ from dotenv import load_dotenv
 from database import get_db, engine
 import schemas
 
+from datetime import datetime, timedelta
+
+MAX_INTENTOS = 3
+BLOQUEO_MINUTOS = 3
+
+intentos_login = {}  # { email: { "intentos": int, "bloqueado_hasta": datetime } }
+
+def verificar_bloqueo(email: str):
+    data = intentos_login.get(email)
+
+    if data:
+        bloqueado_hasta = data.get("bloqueado_hasta")
+
+        if bloqueado_hasta and datetime.utcnow() < bloqueado_hasta:
+            minutos_restantes = int((bloqueado_hasta - datetime.utcnow()).total_seconds() / 60)
+            raise HTTPException(
+                status_code=403,
+                detail=f"Cuenta bloqueada. Intenta en {minutos_restantes} min"
+            )
+        
+def registrar_fallo(email: str):
+    data = intentos_login.get(email, {"intentos": 0, "bloqueado_hasta": None})
+
+    data["intentos"] += 1
+
+    if data["intentos"] >= MAX_INTENTOS:
+        data["bloqueado_hasta"] = datetime.utcnow() + timedelta(minutes=BLOQUEO_MINUTOS)
+        data["intentos"] = 0  # reinicia
+
+    intentos_login[email] = data
+
+def resetear_intentos(email: str):
+    if email in intentos_login:
+        del intentos_login[email]
+
+    
 # Load environment variables
 load_dotenv()
 
@@ -123,18 +159,20 @@ def login(data: dict, db: Session = Depends(get_db)):
                 detail="Faltan email o password"
             )
 
+        verificar_bloqueo(email)
+
         user = db.query(models.User).filter(
             models.User.email == email
         ).first()
 
-        if not user:
-            raise HTTPException(status_code=400, detail="Usuario no existe")
-
-        if not auth.verify_password(password, user.password):
-            raise HTTPException(status_code=400, detail="Clave incorrecta")
+        if not user or not auth.verify_password(password, user.password):
+            registrar_fallo(email)
+            raise HTTPException(status_code=400, detail="Credenciales incorrectas")
 
         if user.role != "cliente":
             raise HTTPException(status_code=403, detail="Solo app móvil")
+
+        resetear_intentos(email)
 
         token = auth.create_access_token({
             "sub": str(user.id),
@@ -157,21 +195,29 @@ def login(data: dict, db: Session = Depends(get_db)):
 
 @app.post("/api/login-movil")
 def login_movil(data: dict, db: Session = Depends(get_db)):
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "")
+
+    verificar_bloqueo(email)
+
     user = db.query(models.User).filter(
-        models.User.email == data['email']
+        models.User.email == email
     ).first()
 
     if not user or not auth.verify_password(
-        data['password'],
+        password,
         user.password
     ):
-        raise HTTPException(status_code=400)
+        registrar_fallo(email)
+        raise HTTPException(status_code=400, detail="Credenciales incorrectas")
 
     if user.role != "cliente":
         raise HTTPException(
             status_code=403,
             detail="Solo clientes en app móvil"
         )
+
+    resetear_intentos(email)
 
     token = auth.create_access_token({
         "sub": str(user.id),
@@ -190,13 +236,18 @@ def login_web(data: dict, db: Session = Depends(get_db)):
     email = data.get("email", "").strip().lower()
     password = data.get("password", "")
 
+    verificar_bloqueo(email)
+
     user = db.query(models.User).filter(models.User.email == email).first()
 
     if not user or not auth.verify_password(password, user.password):
+        registrar_fallo(email)
         raise HTTPException(status_code=400, detail="Credenciales incorrectas")
 
     if user.role not in ["taller", "admin"]:
         raise HTTPException(status_code=403, detail="Acceso solo panel web")
+
+    resetear_intentos(email)
 
     token = auth.create_access_token({
         "sub": str(user.id),
@@ -304,12 +355,16 @@ async def crear_emergencia(
         # ---------------------------
         # GUARDAR INCIDENTE
         # ---------------------------
+        clasificacion, prioridad = clasificar_emergencia(descripcion)
+
         nuevo_incidente = models.Incidente(
             id=uuid.uuid4(),
             cliente_id=cliente_uuid,
             lat=lat,
             lng=lng,
             descripcion_ia=descripcion,
+            clasificacion=clasificacion,
+            prioridad=prioridad,
             audio_path=ruta_audio,   # 👈 NUEVO
             status="pendiente"
         )
@@ -362,6 +417,43 @@ async def subir_imagen(
 def obtener_incidentes_pendientes(db: Session = Depends(get_db)):
     return db.query(models.Incidente).filter(
         models.Incidente.status == "pendiente"
+    ).all()
+
+@app.get("/api/incidentes/pendientes/{taller_id}")
+def incidentes_filtrados(taller_id: str, db: Session = Depends(get_db)):
+    servicios = db.execute(
+        text(
+            "SELECT s.nombre FROM servicios s "
+            "JOIN taller_servicios ts ON ts.servicio_id = s.id "
+            "WHERE ts.taller_id = :taller_id"
+        ),
+        {"taller_id": taller_id}
+    ).fetchall()
+
+    if not servicios:
+        return []
+
+    def servicio_a_clasificacion(nombre: str) -> str:
+        nombre_l = nombre.lower()
+        if "llanta" in nombre_l:
+            return "Llanta"
+        if "grúa" in nombre_l or "grua" in nombre_l:
+            return "Grúa"
+        if "batería" in nombre_l or "bateria" in nombre_l:
+            return "Eléctrico"
+        if "eléctrico" in nombre_l or "electrico" in nombre_l:
+            return "Eléctrico"
+        if "aceite" in nombre_l:
+            return "Mecánica"
+        if "mecánica" in nombre_l or "mecanica" in nombre_l:
+            return "Mecánica"
+        return nombre
+
+    clasificaciones = {servicio_a_clasificacion(row[0]) for row in servicios}
+
+    return db.query(models.Incidente).filter(
+        models.Incidente.status == "pendiente",
+        models.Incidente.clasificacion.in_(list(clasificaciones))
     ).all()
 
 @app.post("/api/taller/enviar-oferta")
@@ -594,9 +686,40 @@ def registrar_taller(data: dict, db: Session = Depends(get_db)):
 
 @app.get("/api/servicios")
 def obtener_servicios(db: Session = Depends(get_db)):
-    return db.execute("SELECT * FROM servicios").fetchall()
+    servicios_base = [
+        "Llanta",
+        "Batería",
+        "Grúa",
+        "Mecánica general",
+        "Cambio de aceite",
+        "Auxilio eléctrico"
+    ]
+    for nombre in servicios_base:
+        existe = db.execute(
+            text("SELECT id FROM servicios WHERE nombre = :nombre"),
+            {"nombre": nombre}
+        ).fetchone()
 
+        if not existe:
+            db.execute(
+                text("INSERT INTO servicios (nombre) VALUES (:nombre)"),
+                {"nombre": nombre}
+            )
 
+    db.commit()
+
+    filas = db.execute(
+        text("SELECT id, nombre FROM servicios ORDER BY nombre")
+    ).fetchall()
+
+    return [
+        {
+            "id": str(f[0]),
+            "nombre": f[1]
+        }
+        for f in filas
+    ]
+""" 
 @app.post("/api/taller/servicios")
 def guardar_servicios(data: dict, db: Session = Depends(get_db)):
     db.execute(
@@ -611,32 +734,35 @@ def guardar_servicios(data: dict, db: Session = Depends(get_db)):
         )
 
     db.commit()
-    return {"status": "ok"}
+    return {"status": "ok"}"""
 
-@app.post("/api/pago/finalizar")
-def finalizar_servicio(data: dict, db: Session = Depends(get_db)):
+@app.post("/api/taller/servicios")
+def guardar_servicios(data: dict, db: Session = Depends(get_db)):
+    taller_id = data["taller_id"]
+    servicios = data.get("servicios", [])
 
-    monto = data["monto"]
-
-    comision = monto * 0.10
-    monto_taller = monto - comision
-
-    pago = models.Pago(
-        id=uuid.uuid4(),
-        incidente_id=data["incidente_id"],
-        monto_total=monto,
-        comision_plataforma=comision,
-        monto_taller=monto_taller,
-        estado_pago="completado"
+    db.execute(
+        text("DELETE FROM taller_servicios WHERE taller_id = :tid"),
+        {"tid": taller_id}
     )
 
-    db.add(pago)
+    for sid in servicios:
+        db.execute(
+            text("""
+                INSERT INTO taller_servicios (taller_id, servicio_id)
+                VALUES (:taller_id, :servicio_id)
+            """),
+            {
+                "taller_id": taller_id,
+                "servicio_id": sid
+            }
+        )
+
     db.commit()
 
     return {
-        "total": monto,
-        "comision": comision,
-        "taller": monto_taller
+        "status": "ok",
+        "mensaje": "Servicios actualizados correctamente"
     }
 
 @app.get("/api/taller/saldo/{taller_id}")
@@ -923,6 +1049,8 @@ def crear_incidente_ia(data: dict, db: Session = Depends(get_db)):
         lat=data["lat"],
         lng=data["lng"],
         descripcion_ia=descripcion,
+        clasificacion=clasificacion,
+        prioridad=prioridad,
         status="pendiente"
     )
 
@@ -1084,7 +1212,7 @@ def solicitudes_atendiendo(taller_id: str, db: Session = Depends(get_db)):
 
         imagen_url = None
         if imagen:
-            base_url = os.getenv("BASE_URL", "http://localhost:8000")
+            base_url = os.getenv("BASE_URL=https://auxilio-vehicular.onrender.com")
             imagen_url = f"{base_url}/{imagen.ruta_imagen.replace('\\', '/')}"
 
         resultado.append({

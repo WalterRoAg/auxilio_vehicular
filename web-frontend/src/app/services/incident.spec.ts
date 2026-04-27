@@ -7,8 +7,11 @@ export class IncidentService {
 
   constructor(private http: HttpClient) {}
 
-  getIncidentesPendientes() {
-    return this.http.get(`${this.API_URL}/incidentes/pendientes`);
+  getIncidentesPendientes(tallerId?: string) {
+    const url = tallerId
+      ? `${this.API_URL}/incidentes/pendientes/${tallerId}`
+      : `${this.API_URL}/incidentes/pendientes`;
+    return this.http.get(url);
   }
 
   enviarOferta(incidenteId: string, precio: number, tiempo: number) {

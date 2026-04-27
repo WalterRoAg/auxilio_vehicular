@@ -47,6 +47,8 @@ class Incidente(Base):
     lat = Column(Float)
     lng = Column(Float)
     descripcion_ia = Column(Text)
+    clasificacion = Column(String, nullable=True)
+    prioridad = Column(String, nullable=True)
     audio_path = Column(String, nullable=True)
     status = Column(String, default="pendiente")
     taller_asignado_id = Column(UUID(as_uuid=True), ForeignKey("talleres.id"), nullable=True)

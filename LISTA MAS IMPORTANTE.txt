@@ -1,0 +1,17 @@
+LISTA MAS IMPORTANTE
+1) bloqueo de contraseña por erro de 3 intentos con 5 min (adicional con codigo al correo)
+2) el saldo mediante qr
+3) que actualice automaticamente la pagina (refresh)
+4) la clasificacion de prioridad meidante ia
+
+
+secundario
+1) notificacion push
+2) lista de servicios
+3) añadir mapa
+
+bata base en la nube
+postgresql://auxilio_db_user:BEvzHU5KhBx1uarvW8PL5LAKKkqpDXgm@dpg-d7mp300k1i2s7398orng-a/auxilio_db
+
+
+https://dashboard.render.com/static/srv-d7mqt2hkh4rs73arc9k0/events

@@ -13,8 +13,11 @@ export class IncidentService {
 
   constructor(private http: HttpClient) {}
 
-  getIncidentesPendientes(): Observable<Incidente[]> {
-    return this.http.get<Incidente[]>(`${this.API_URL}/incidentes/pendientes`);
+  getIncidentesPendientes(tallerId?: string): Observable<Incidente[]> {
+    const url = tallerId
+      ? `${this.API_URL}/incidentes/pendientes/${tallerId}`
+      : `${this.API_URL}/incidentes/pendientes`;
+    return this.http.get<Incidente[]>(url);
   }
 
   enviarOferta(oferta: Oferta): Observable<any> {

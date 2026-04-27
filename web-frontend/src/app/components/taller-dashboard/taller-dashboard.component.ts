@@ -43,7 +43,7 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
       this.loading = true;
     }
 
-    this.incidentService.getIncidentesPendientes().subscribe({
+    this.incidentService.getIncidentesPendientes(this.tallerId).subscribe({
       next: (data) => {
         console.log('INCIDENTES RECIBIDOS:', data);
         this.incidentes = [...(data || [])];
