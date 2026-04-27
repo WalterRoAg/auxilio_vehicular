@@ -72,6 +72,16 @@ with engine.begin() as conn:
     """))
 
     conn.execute(text("""
+        CREATE TABLE IF NOT EXISTS taller_encargados (
+            taller_id UUID NOT NULL,
+            user_id UUID NOT NULL,
+            PRIMARY KEY (taller_id, user_id),
+            FOREIGN KEY (taller_id) REFERENCES talleres(id),
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    """))
+
+    conn.execute(text("""
         ALTER TABLE incidentes 
         ADD COLUMN IF NOT EXISTS clasificacion VARCHAR(100)
     """))
@@ -1260,24 +1270,30 @@ def solicitudes_atendiendo(taller_id: str, db: Session = Depends(get_db)):
 
 @app.get("/api/taller/encargados/{taller_id}")
 def listar_encargados(taller_id: str, db: Session = Depends(get_db)):
-    filas = db.execute(
-        text("""
-            SELECT u.id, u.full_name, u.email, u.phone
-            FROM taller_encargados te
-            JOIN users u ON u.id = te.user_id
-            WHERE te.taller_id = :taller_id
-        """),
-        {"taller_id": taller_id}
-    ).fetchall()
+    try:
+        filas = db.execute(
+            text("""
+                SELECT u.id, u.full_name, u.email, u.phone
+                FROM taller_encargados te
+                JOIN users u ON u.id = te.user_id
+                WHERE te.taller_id = :taller_id
+            """),
+            {"taller_id": taller_id}
+        ).fetchall()
 
-    return [
-        {
-            "id": str(f[0]),
-            "nombre": f[1],
-            "email": f[2],
-            "telefono": f[3]
-        }
-        for f in filas
+        return [
+            {
+                "id": str(f[0]),
+                "nombre": f[1],
+                "email": f[2],
+                "telefono": f[3]
+            }
+            for f in filas
+        ]
+    
+    except Exception as e:
+        print(f"ERROR LISTAR ENCARGADOS: {e}")
+        raise HTTPException(status_code=500, detail="Error al listar encargados")
     ]
 
 @app.get("/api/taller/servicios/{taller_id}")
