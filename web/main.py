@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import models, auth
 import uuid
 import os
+import math
 from fastapi import Form
 from dotenv import load_dotenv
 
@@ -18,6 +19,23 @@ MAX_INTENTOS = 3
 BLOQUEO_MINUTOS = 3
 
 intentos_login = {}  # { email: { "intentos": int, "bloqueado_hasta": datetime } }
+
+def calcular_distancia_km(lat1, lon1, lat2, lon2):
+    R = 6371  # radio de la tierra en km
+
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+
+    a = (
+        math.sin(dlat/2)**2 +
+        math.cos(math.radians(lat1)) *
+        math.cos(math.radians(lat2)) *
+        math.sin(dlon/2)**2
+    )
+
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    return R * c
+
 
 def verificar_bloqueo(email: str):
     data = intentos_login.get(email)
@@ -538,12 +556,22 @@ def enviar_oferta(datos: dict, db: Session = Depends(get_db)):
     if not taller:
         raise HTTPException(status_code=404, detail="Taller no encontrado")
 
+    distancia = calcular_distancia_km(
+        taller.latitud,
+        taller.longitud,
+        incidente.lat,
+        incidente.lng
+    )
+
+    velocidad_promedio = 40  # km/h ciudad
+    tiempo_min = int((distancia / velocidad_promedio) * 60)
+
     nueva_oferta = models.OfertaTaller(
         id=uuid.uuid4(),
         incidente_id=datos["incidente_id"],
         taller_id=datos["taller_id"],
         precio_estimado=datos["precio"],
-        tiempo_llegada_minutos=datos["tiempo"],
+        tiempo_llegada_minutos=tiempo_min,
         mensaje_taller=datos.get("mensaje", "Oferta enviada por el taller"),
         estado_oferta="pendiente"
     )
