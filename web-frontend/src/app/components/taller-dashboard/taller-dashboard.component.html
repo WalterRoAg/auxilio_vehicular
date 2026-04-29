@@ -74,9 +74,9 @@
        <!-- <input #tiempo type="number" placeholder="Minutos" /> -->
 
         <button
-          (click)="aceptarSolicitud(item, precio.value, tiempo.value)"
-          style="background: green; color: white;">
-          Aceptar Solicitud
+          (click)="aceptarSolicitud(item, precio.value, item.tiempo_estimado_minutos || 0)"
+  style="background: green; color: white;">
+  Aceptar Solicitud
         </button>
       </div>
 
