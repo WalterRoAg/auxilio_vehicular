@@ -18,9 +18,18 @@
     <div class="card-incident" *ngFor="let item of incidentes">
       
       <div class="card-top">
-        <span class="badge normal">Pendiente</span>
-        <span class="estado">{{ item.status }}</span>
-      </div>
+  <span class="badge normal">Pendiente</span>
+
+  <span
+    class="badge"
+    [ngClass]="{
+      'alta': item.prioridad === 'Alta',
+      'media': item.prioridad === 'Media',
+      'baja': item.prioridad === 'Baja'
+    }">
+    Prioridad: {{ item.prioridad || 'Sin prioridad' }}
+  </span>
+</div>
 
       <h3>Auxilio Vehicular</h3>
 

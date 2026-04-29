@@ -501,13 +501,13 @@ def incidentes_filtrados(taller_id: str, db: Session = Depends(get_db)):
         if "grúa" in nombre_l or "grua" in nombre_l:
             return "Grúa"
         if "batería" in nombre_l or "bateria" in nombre_l:
-            return "Eléctrico"
+            return "Batería"
         if "eléctrico" in nombre_l or "electrico" in nombre_l:
             return "Eléctrico"
         if "aceite" in nombre_l:
-            return "Mecánica"
+            return "Cambio de aceite"
         if "mecánica" in nombre_l or "mecanica" in nombre_l:
-            return "Mecánica"
+            return "Mecánica general"
         return nombre
 
     clasificaciones = {servicio_a_clasificacion(row[0]) for row in servicios}
@@ -969,20 +969,6 @@ def actualizar_perfil_taller(taller_id: str, data: dict, db: Session = Depends(g
 
 
 
-def clasificar_emergencia(texto: str):
-    t = texto.lower()
-
-    if "llanta" in t or "pinchada" in t:
-        return "Llanta", "Baja"
-
-    if "bateria" in t or "arranca" in t:
-        return "Eléctrico", "Media"
-
-    if "grua" in t or "choque" in t or "accidente" in t:
-        return "Grúa", "Alta"
-
-    return "Mecánica", "Baja"
-
 
     
 @app.put("/api/incidentes/cancelar/{incidente_id}")
@@ -1163,7 +1149,10 @@ def clasificar_emergencia(texto: str):
     if "grua" in t or "choque" in t or "accidente" in t:
         return "Grúa", "Alta"
 
-    return "Mecánica", "Baja"
+    if "electrico" in t or "eléctrico" in t or "electricidad" in t or "luces" in t:
+        return "Auxilio eléctrico", "Media"
+
+    return "Mecánica general", "Baja"
 
 @app.post("/api/incidentes/crear-ia")
 def crear_incidente_ia(data: dict, db: Session = Depends(get_db)):
