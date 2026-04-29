@@ -32,7 +32,9 @@
 </div>
 
       <h3>Auxilio Vehicular</h3>
-
+      <p class="tiempo-solicitud" *ngIf="item.fecha_creacion">
+  ⏱ {{ tiempoTranscurrido(item.fecha_creacion) }}
+</p>
       <img
         *ngIf="item.imagen_url"
         [src]="item.imagen_url"
@@ -73,10 +75,14 @@
         Ver ubicación en Google Maps
       </a>
 
-      <p>
-        <strong>Fecha:</strong>
-        {{ item.fecha_creacion || 'Sin fecha' }}
-      </p>
+      <p class="tiempo-solicitud" *ngIf="item.fecha_creacion">
+  ⏱ {{ tiempoTranscurrido(item.fecha_creacion) }}
+</p>
+
+<p>
+  <strong>Fecha:</strong>
+  {{ item.fecha_creacion || 'Sin fecha' }}
+</p>
 
       <div class="inputs" *ngIf="!ofertasEnviadas.includes(item.id)">
         <input #precio type="number" placeholder="Precio Bs." />

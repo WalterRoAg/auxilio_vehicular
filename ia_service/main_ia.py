@@ -5,27 +5,44 @@ import shutil
 import requests
 import uuid
 import concurrent.futures
+import unicodedata
 
 app = FastAPI(title="IA Service")
 
 model = whisper.load_model("tiny")
 
-BACKEND_URL = "http://localhost:8000/api/incidentes/crear-ia"
+BACKEND_URL = "https://auxilio-vehicular.onrender.com/api/incidentes/crear-ia"
 
+
+def normalizar(texto: str) -> str:
+    if not texto:
+        return ""
+
+    texto = texto.lower().strip()
+
+    texto = ''.join(
+        c for c in unicodedata.normalize('NFD', texto)
+        if unicodedata.category(c) != 'Mn'
+    )
+
+    return texto
 
 def clasificar(texto):
-    t = texto.lower()
+    t = normalizar(texto)
 
-    if "llanta" in t or "pinchada" in t or "neumático" in t:
-        return "Llanta", "Baja"
+    if "llanta" in t or "pinchada" in t or "neumatico" in t or "rueda" in t:
+        return "llanta", "Baja"
 
-    if "bateria" in t or "batería" in t or "arranca" in t or "eléctrico" in t:
-        return "Eléctrico", "Media"
+    if "bateria" in t or "arranca" in t or "corriente" in t:
+        return "bateria", "Media"
 
-    if "grua" in t or "grúa" in t or "choque" in t or "accidente" in t:
-        return "Grúa", "Alta"
+    if "grua" in t or "choque" in t or "accidente" in t:
+        return "grua", "Alta"
 
-    return "Mecánica general", "Baja"
+    if "electrico" in t or "electricidad" in t or "luces" in t:
+        return "electrico", "Media"
+
+    return "mecanica_general", "Media"
 
 
 def transcribir_audio(audio_path):

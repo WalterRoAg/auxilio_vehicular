@@ -61,16 +61,18 @@ class _SolicitudAtendidaPantallaState extends State<SolicitudAtendidaPantalla> {
     setState(() {
       clienteLat = double.tryParse(data["lat"].toString()) ?? 0;
       clienteLng = double.tryParse(data["lng"].toString()) ?? 0;
-      status = data["status"] ?? '';
+      status = data["status"]?.toString() ?? '';
 
       if (taller != null) {
-        nombreTaller = taller["nombre_taller"] ?? "Taller";
-        especialidad = taller["especialidad"] ?? "Mecánica general";
-        direccion = taller["direccion"] ?? "Sin dirección";
+        nombreTaller = taller["nombre_taller"]?.toString() ?? "Taller";
+        especialidad = taller["especialidad"]?.toString() ?? "Mecánica general";
+        direccion = taller["direccion"]?.toString() ?? "Sin dirección";
+
         tallerLat = double.tryParse(taller["latitud"].toString()) ?? clienteLat;
         tallerLng =
             double.tryParse(taller["longitud"].toString()) ?? clienteLng;
-        rating = double.tryParse(taller["rating"].toString()) ?? 5;
+
+        rating = double.tryParse(taller["rating"].toString()) ?? 0;
       }
 
       if (oferta != null) {
@@ -111,19 +113,31 @@ class _SolicitudAtendidaPantallaState extends State<SolicitudAtendidaPantalla> {
       appBar: AppBar(
         title: const Text("Solicitud atendida"),
         backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
       ),
-      body: Column(
+
+      body: Stack(
         children: [
-          Expanded(
-            flex: 6,
+          Positioned.fill(
             child: FlutterMap(
               mapController: _mapController,
-              options: MapOptions(initialCenter: cliente, initialZoom: 15),
+              options: MapOptions(initialCenter: cliente, initialZoom: 13),
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.example.auxilio_vehicular_app',
                 ),
+
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: [taller, cliente],
+                      strokeWidth: 5,
+                      color: Colors.red,
+                    ),
+                  ],
+                ),
+
                 MarkerLayer(
                   markers: [
                     Marker(
@@ -152,176 +166,178 @@ class _SolicitudAtendidaPantallaState extends State<SolicitudAtendidaPantalla> {
             ),
           ),
 
-          Expanded(
-            flex: 5,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Tu solicitud fue aceptada",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  Text(
-                    nombreTaller,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                  ),
-
-                  Text(especialidad),
-                  Text(direccion),
-
-                  const SizedBox(height: 16),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          DraggableScrollableSheet(
+            initialChildSize: 0.47,
+            minChildSize: 0.35,
+            maxChildSize: 0.75,
+            builder: (context, scrollController) {
+              return Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 12)],
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
+                ),
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _infoBox("Precio", "Bs. ${precio.toStringAsFixed(2)}"),
-                      _infoBox("Llegada", "$tiempo min"),
-                      _infoBox("Rating", "⭐ $rating"),
-                    ],
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.directions_car, color: Colors.green),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            "El técnico está en camino a tu ubicación.",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                      Center(
+                        child: Container(
+                          width: 45,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  if (!puedeAccionar)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade50,
-                        borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Text(
-                        "Podrás finalizar o cancelar cuando pasen los $tiempo minutos estimados.",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
 
-                  if (puedeAccionar) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final ok = await ApiServicio().finalizarIncidente(
-                            widget.incidenteId,
-                          );
+                      const SizedBox(height: 16),
 
-                          if (!context.mounted) return;
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                ok
-                                    ? "Servicio finalizado"
-                                    : "No se pudo finalizar",
-                              ),
-                              backgroundColor: ok ? Colors.green : Colors.red,
-                            ),
-                          );
-
-                          if (ok) Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.check_circle),
-                        label: const Text("Finalizar servicio"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
+                      const Text(
+                        "Tu solicitud fue aceptada",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: 10),
+                      const SizedBox(height: 12),
 
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final ok = await ApiServicio().cancelarNoLlego(
-                            widget.incidenteId,
-                          );
-
-                          if (!context.mounted) return;
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                ok
-                                    ? "Solicitud cancelada"
-                                    : "No se pudo cancelar",
-                              ),
-                              backgroundColor: ok ? Colors.orange : Colors.red,
-                            ),
-                          );
-
-                          if (ok) Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.cancel),
-                        label: const Text("Cancelar porque no llegó"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
+                      Text(
+                        nombreTaller,
+                        style: const TextStyle(
+                          fontSize: 21,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
                         ),
                       ),
-                    ),
-                  ],
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text("Volver"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
+                      Text(especialidad),
+                      Text(direccion),
+
+                      const SizedBox(height: 16),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _infoBox(
+                            "Precio",
+                            "Bs. ${precio.toStringAsFixed(2)}",
+                          ),
+                          _infoBox("Llegada", "$tiempo min"),
+                          _infoBox("Rating", "⭐ ${rating.toStringAsFixed(1)}"),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Container(
                         padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.directions_car, color: Colors.green),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                "El técnico está en camino a tu ubicación.",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+
+                      const SizedBox(height: 12),
+
+                      if (!puedeAccionar)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Text(
+                            "Podrás finalizar o cancelar cuando pasen los $tiempo minutos estimados.",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+
+                      const SizedBox(height: 14),
+
+                      if (puedeAccionar) ...[
+                        _botonAccion(
+                          texto: "Finalizar servicio",
+                          icono: Icons.check_circle,
+                          color: Colors.green,
+                          onPressed: _finalizarServicio,
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        _botonAccion(
+                          texto: "Cancelar porque no llegó",
+                          icono: Icons.cancel,
+                          color: Colors.red,
+                          onPressed: _cancelarNoLlego,
+                        ),
+
+                        const SizedBox(height: 10),
+                      ],
+
+                      _botonAccion(
+                        texto: "Volver",
+                        icono: Icons.arrow_back,
+                        color: Colors.red,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _finalizarServicio() async {
+    final ok = await ApiServicio().finalizarIncidente(widget.incidenteId);
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok ? "Servicio finalizado" : "No se pudo finalizar"),
+        backgroundColor: ok ? Colors.green : Colors.red,
+      ),
+    );
+
+    if (ok) Navigator.pop(context);
+  }
+
+  Future<void> _cancelarNoLlego() async {
+    final ok = await ApiServicio().cancelarNoLlego(widget.incidenteId);
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok ? "Solicitud cancelada" : "No se pudo cancelar"),
+        backgroundColor: ok ? Colors.orange : Colors.red,
+      ),
+    );
+
+    if (ok) Navigator.pop(context);
   }
 
   Widget _infoBox(String titulo, String valor) {
@@ -336,8 +352,36 @@ class _SolicitudAtendidaPantallaState extends State<SolicitudAtendidaPantalla> {
         children: [
           Text(titulo, style: const TextStyle(fontSize: 12)),
           const SizedBox(height: 5),
-          Text(valor, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            valor,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _botonAccion({
+    required String texto,
+    required IconData icono,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icono),
+        label: Text(texto),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.all(14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
       ),
     );
   }

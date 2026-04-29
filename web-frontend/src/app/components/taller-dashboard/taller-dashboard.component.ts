@@ -24,16 +24,12 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
   tallerId = localStorage.getItem('taller_id') || '';
 
   private pollingSub?: Subscription;
+  private relojIntervalo?: any;
 
   constructor(
-  private incidentService: IncidentService,
-  private sanitizer: DomSanitizer
+    private incidentService: IncidentService,
+    private sanitizer: DomSanitizer
   ) {}
-
-  getMapaUrl(lat: number, lng: number): SafeResourceUrl {
-  const url = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
-  return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-  }
 
   ngOnInit(): void {
     this.cargarIncidentes();
@@ -41,10 +37,23 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
     this.pollingSub = interval(5000).subscribe(() => {
       this.cargarIncidentes(false);
     });
+
+    this.relojIntervalo = setInterval(() => {
+      this.incidentes = [...this.incidentes];
+    }, 1000);
   }
 
   ngOnDestroy(): void {
     this.pollingSub?.unsubscribe();
+
+    if (this.relojIntervalo) {
+      clearInterval(this.relojIntervalo);
+    }
+  }
+
+  getMapaUrl(lat: number, lng: number): SafeResourceUrl {
+    const url = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   cargarIncidentes(mostrarLoading: boolean = true): void {
@@ -52,7 +61,7 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
       this.loading = true;
     }
 
-    this.incidentService.getIncidentesPendientes(this.tallerId).subscribe({ 
+    this.incidentService.getIncidentesPendientes(this.tallerId).subscribe({
       next: (data) => {
         console.log('INCIDENTES RECIBIDOS:', data);
         this.incidentes = [...(data || [])];
@@ -130,5 +139,21 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
     if (p === 'alta' || p === 'critica' || p === 'crítica') return 'danger';
     if (p === 'media') return 'warning';
     return 'normal';
+  }
+
+  tiempoTranscurrido(fecha: string): string {
+    const ahora = new Date().getTime();
+    const creado = new Date(fecha).getTime();
+
+    const diff = Math.floor((ahora - creado) / 1000);
+
+    if (diff < 10) return 'Justo ahora';
+    if (diff < 60) return `Hace ${diff} seg`;
+
+    const min = Math.floor(diff / 60);
+    if (min < 60) return `Hace ${min} min`;
+
+    const horas = Math.floor(min / 60);
+    return `Hace ${horas} h`;
   }
 }

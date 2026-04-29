@@ -587,6 +587,23 @@ def incidentes_filtrados(taller_id: str, db: Session = Depends(get_db)):
             "distancia_km": round(distancia_km, 2) if distancia_km is not None else None,
             "tiempo_estimado_minutos": tiempo_estimado_minutos
         })
+    
+    def prioridad_valor(p):
+        p = (p or "").lower()
+        if "alta" in p:
+          return 1
+        if "media" in p:
+            return 2
+        if "baja" in p:
+            return 3
+        return 4
+
+    resultado.sort(
+        key=lambda x: (
+            prioridad_valor(x["prioridad"]),
+            x["fecha_creacion"]
+        )
+    )
 
     return resultado
 
