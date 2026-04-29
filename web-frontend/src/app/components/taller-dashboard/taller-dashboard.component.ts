@@ -142,18 +142,30 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
   }
 
   tiempoTranscurrido(fecha: string): string {
-    const ahora = new Date().getTime();
-    const creado = new Date(fecha).getTime();
+  if (!fecha) return 'Sin fecha';
 
-    const diff = Math.floor((ahora - creado) / 1000);
+  // El backend manda fecha sin zona horaria.
+  // Agregamos Z para tratarla como UTC.
+  const fechaUtc = fecha.endsWith('Z') ? fecha : `${fecha}Z`;
 
-    if (diff < 10) return 'Justo ahora';
-    if (diff < 60) return `Hace ${diff} seg`;
+  const ahora = new Date().getTime();
+  const creado = new Date(fechaUtc).getTime();
 
-    const min = Math.floor(diff / 60);
-    if (min < 60) return `Hace ${min} min`;
+  let diff = Math.floor((ahora - creado) / 1000);
 
-    const horas = Math.floor(min / 60);
-    return `Hace ${horas} h`;
-  }
+  // Si por diferencia de zona horaria sale negativo
+  if (diff < 0) diff = 0;
+
+  if (diff < 10) return 'Justo ahora';
+  if (diff < 60) return `Hace ${diff} seg`;
+
+  const min = Math.floor(diff / 60);
+  if (min < 60) return `Hace ${min} min`;
+
+  const horas = Math.floor(min / 60);
+  if (horas < 24) return `Hace ${horas} h`;
+
+  const dias = Math.floor(horas / 24);
+  return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
+}
 }
