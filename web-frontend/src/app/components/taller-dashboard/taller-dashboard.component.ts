@@ -29,7 +29,7 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
   private incidentService: IncidentService,
   private sanitizer: DomSanitizer
   ) {}
-  
+
   getMapaUrl(lat: number, lng: number): SafeResourceUrl {
   const url = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
   return this.sanitizer.bypassSecurityTrustResourceUrl(url);
@@ -52,7 +52,7 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
       this.loading = true;
     }
 
-    this.incidentService.getIncidentesPendientes(this.tallerId).subscribe({
+    this.incidentService.getIncidentesPendientes(this.tallerId).subscribe({ 
       next: (data) => {
         console.log('INCIDENTES RECIBIDOS:', data);
         this.incidentes = [...(data || [])];
@@ -94,7 +94,7 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  aceptarSolicitud(item: any, precio: string, tiempo: string): void {
+  aceptarSolicitud(item: any, precio: string, tiempo: any): void {
     if (!this.tallerId) {
       alert('No se encontró el taller asociado a esta cuenta');
       return;
