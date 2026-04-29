@@ -7,6 +7,7 @@ import models, auth
 import uuid
 import os
 import math
+import unicodedata
 from fastapi import Form
 from dotenv import load_dotenv
 
@@ -19,6 +20,21 @@ MAX_INTENTOS = 3
 BLOQUEO_MINUTOS = 3
 
 intentos_login = {}  # { email: { "intentos": int, "bloqueado_hasta": datetime } }
+
+
+
+def normalizar(texto: str) -> str:
+    if not texto:
+        return ""
+
+    texto = texto.lower().strip()
+
+    texto = ''.join(
+        c for c in unicodedata.normalize('NFD', texto)
+        if unicodedata.category(c) != 'Mn'
+    )
+
+    return texto
 
 def calcular_distancia_km(lat1, lon1, lat2, lon2):
     R = 6371  # radio de la tierra en km
@@ -495,27 +511,38 @@ def incidentes_filtrados(taller_id: str, db: Session = Depends(get_db)):
     ).first()
 
     def servicio_a_clasificacion(nombre: str) -> str:
-        nombre_l = nombre.lower()
-        if "llanta" in nombre_l:
-            return "Llanta"
-        if "grúa" in nombre_l or "grua" in nombre_l:
-            return "Grúa"
-        if "batería" in nombre_l or "bateria" in nombre_l:
-            return "Batería"
-        if "eléctrico" in nombre_l or "electrico" in nombre_l:
-            return "Eléctrico"
-        if "aceite" in nombre_l:
-            return "Cambio de aceite"
-        if "mecánica" in nombre_l or "mecanica" in nombre_l:
-            return "Mecánica general"
-        return nombre
+        n = normalizar(nombre)
+
+        if "llanta" in n:
+            return "llanta"
+
+        if "grua" in n:
+            return "grua"
+
+        if "bateria" in n:
+            return "bateria"
+
+        if "electrico" in n:
+            return "electrico"
+
+        if "aceite" in n:
+            return "aceite"
+
+        if "mecanica" in n:
+            return "mecanica_general"
+
+        return n
 
     clasificaciones = {servicio_a_clasificacion(row[0]) for row in servicios}
 
     incidentes = db.query(models.Incidente).filter(
         models.Incidente.status == "pendiente",
-        models.Incidente.clasificacion.in_(list(clasificaciones))
     ).all()
+
+    incidentes_filtrados = [
+        inc for inc in incidentes
+        if normalizar(inc.clasificacion) in clasificaciones
+    ]
 
     resultado = []
 
@@ -1138,21 +1165,21 @@ def solicitud_activa_cliente(cliente_id: str, db: Session = Depends(get_db)):
     }
 
 def clasificar_emergencia(texto: str):
-    t = texto.lower()
+    t = normalizar(texto)
 
     if "llanta" in t or "pinchada" in t:
-        return "Llanta", "Baja"
+        return "llanta", "Baja"
 
     if "bateria" in t or "arranca" in t:
-        return "Eléctrico", "Media"
+        return "bateria", "Media"
 
     if "grua" in t or "choque" in t or "accidente" in t:
-        return "Grúa", "Alta"
+        return "grua", "Alta"
 
-    if "electrico" in t or "eléctrico" in t or "electricidad" in t or "luces" in t:
-        return "Auxilio eléctrico", "Media"
+    if "electrico" in t or "electricidad" in t or "luces" in t:
+        return "electrico", "Media"
 
-    return "Mecánica general", "Baja"
+    return "mecanica_general", "Baja"
 
 @app.post("/api/incidentes/crear-ia")
 def crear_incidente_ia(data: dict, db: Session = Depends(get_db)):
