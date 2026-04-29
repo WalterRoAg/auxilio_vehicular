@@ -490,6 +490,10 @@ def incidentes_filtrados(taller_id: str, db: Session = Depends(get_db)):
     if not servicios:
         return []
 
+    taller = db.query(models.Taller).filter(
+        models.Taller.id == taller_id
+    ).first()
+
     def servicio_a_clasificacion(nombre: str) -> str:
         nombre_l = nombre.lower()
         if "llanta" in nombre_l:
@@ -525,6 +529,23 @@ def incidentes_filtrados(taller_id: str, db: Session = Depends(get_db)):
             base_url = os.getenv("BASE_URL", "https://auxilio-vehicular.onrender.com")
             imagen_url = f"{base_url}/{imagen.ruta_imagen.replace('\\', '/')}"
 
+        distancia_km = None
+        tiempo_estimado_minutos = None
+
+        if taller and taller.latitud and taller.longitud and inc.lat and inc.lng:
+            distancia_km = calcular_distancia_km(
+                taller.latitud,
+                taller.longitud,
+                inc.lat,
+                inc.lng
+            )
+
+            velocidad_promedio = 40  # km/h
+            tiempo_estimado_minutos = max(
+                1,
+                int((distancia_km / velocidad_promedio) * 60)
+            )
+
         resultado.append({
             "id": str(inc.id),
             "cliente_id": str(inc.cliente_id),
@@ -535,7 +556,9 @@ def incidentes_filtrados(taller_id: str, db: Session = Depends(get_db)):
             "lat": inc.lat,
             "lng": inc.lng,
             "fecha_creacion": inc.fecha_creacion,
-            "imagen_url": imagen_url
+            "imagen_url": imagen_url,
+            "distancia_km": round(distancia_km, 2) if distancia_km is not None else None,
+            "tiempo_estimado_minutos": tiempo_estimado_minutos
         })
 
     return resultado
@@ -1011,6 +1034,16 @@ def aceptar_solicitud(datos: dict, db: Session = Depends(get_db)):
     precio = float(datos["precio"])
     comision = precio * 0.10
 
+    distancia = calcular_distancia_km(
+        taller.latitud,
+        taller.longitud,
+        incidente.lat,
+        incidente.lng
+    )
+
+    velocidad_promedio = 40
+    tiempo_min = max(1, int((distancia / velocidad_promedio) * 60))
+
     saldo_actual = float(taller.saldo or 0)
 
     if saldo_actual < comision:
@@ -1026,7 +1059,7 @@ def aceptar_solicitud(datos: dict, db: Session = Depends(get_db)):
         incidente_id=incidente.id,
         taller_id=taller.id,
         precio_estimado=precio,
-        tiempo_llegada_minutos=datos["tiempo"],
+        tiempo_llegada_minutos=tiempo_min,
         mensaje_taller=datos.get("mensaje", "Solicitud aceptada por el taller"),
         estado_oferta="aceptada"
     )

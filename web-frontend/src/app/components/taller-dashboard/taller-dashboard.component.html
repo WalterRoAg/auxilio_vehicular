@@ -40,6 +40,16 @@
         {{ item.lat }}, {{ item.lng }}
       </p>
 
+      <p *ngIf="item.tiempo_estimado_minutos">
+  <span style="background:#f1f5f9; padding:6px 12px; border-radius:10px;">
+    ⏱ Tiempo estimado: {{ item.tiempo_estimado_minutos }} min
+  </span>
+</p>
+
+<p *ngIf="item.distancia_km">
+  📍 Distancia aprox.: {{ item.distancia_km }} km
+</p>
+
       <iframe
         width="100%"
         height="180"
@@ -61,7 +71,7 @@
 
       <div class="inputs" *ngIf="!ofertasEnviadas.includes(item.id)">
         <input #precio type="number" placeholder="Precio Bs." />
-        <input #tiempo type="number" placeholder="Minutos" />
+       <!-- <input #tiempo type="number" placeholder="Minutos" /> -->
 
         <button
           (click)="aceptarSolicitud(item, precio.value, tiempo.value)"
