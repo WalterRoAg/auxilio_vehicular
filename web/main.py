@@ -490,10 +490,37 @@ def incidentes_filtrados(taller_id: str, db: Session = Depends(get_db)):
 
     clasificaciones = {servicio_a_clasificacion(row[0]) for row in servicios}
 
-    return db.query(models.Incidente).filter(
+    incidentes = db.query(models.Incidente).filter(
         models.Incidente.status == "pendiente",
         models.Incidente.clasificacion.in_(list(clasificaciones))
     ).all()
+
+    resultado = []
+
+    for inc in incidentes:
+        imagen = db.query(models.ImagenIncidente).filter(
+            models.ImagenIncidente.incidente_id == inc.id
+        ).first()
+
+        imagen_url = None
+        if imagen:
+            base_url = os.getenv("BASE_URL", "https://auxilio-vehicular.onrender.com")
+            imagen_url = f"{base_url}/{imagen.ruta_imagen.replace('\\', '/')}"
+
+        resultado.append({
+            "id": str(inc.id),
+            "cliente_id": str(inc.cliente_id),
+            "descripcion_ia": inc.descripcion_ia,
+            "clasificacion": inc.clasificacion,
+            "prioridad": inc.prioridad,
+            "status": inc.status,
+            "lat": inc.lat,
+            "lng": inc.lng,
+            "fecha_creacion": inc.fecha_creacion,
+            "imagen_url": imagen_url
+        })
+
+    return resultado
 
 @app.post("/api/taller/enviar-oferta")
 def enviar_oferta(datos: dict, db: Session = Depends(get_db)):

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IncidentService } from '../../services/incident.service';
 import { Subscription, interval } from 'rxjs';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { Incidente } from '../../models/incidente.model';
 import { Oferta } from '../../models/oferta.model';
@@ -24,7 +25,15 @@ export class TallerDashboardComponent implements OnInit, OnDestroy {
 
   private pollingSub?: Subscription;
 
-  constructor(private incidentService: IncidentService) {}
+  constructor(
+  private incidentService: IncidentService,
+  private sanitizer: DomSanitizer
+  ) {}
+  
+  getMapaUrl(lat: number, lng: number): SafeResourceUrl {
+  const url = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+  return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
 
   ngOnInit(): void {
     this.cargarIncidentes();
