@@ -33,7 +33,7 @@ def calcular_distancia_km(lat1, lon1, lat2, lon2):
         math.sin(dlon/2)**2
     )
 
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    c = 4 * math.atan2(math.sqrt(a), math.sqrt(1-a))
     return R * c
 
 
